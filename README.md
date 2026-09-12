@@ -12,7 +12,7 @@ Every block exists because the one next to it needs it: the clock has to be read
 |---|---|---|
 | 1 | IEEE-1588 clock core (`ptp_clock_core`) | ✔ RTL + self-checking TB |
 | 2 | Timestamp capture unit (`ptp_ts_capture`, `sync_fifo`) | ✔ RTL + TB |
-| 3 | Cross-domain time snapshot (handshake CDC) | ☐ |
+| 3 | Cross-domain time snapshot (`ptp_time_snapshot`, handshake CDC) | ✔ RTL + two-clock TB + XDC |
 | 4 | Latency histogram engine + AXI-Lite | ☐ |
 | 5 | Simulink PI servo model + golden-vector diff | ☐ |
 | — | Vivado OOC synthesis: Fmax, LUT/FF/BRAM, timing | ☐ |
@@ -109,6 +109,52 @@ On the rising edge of an event strobe the current `{sec, ns}` is latched and pus
 
 ```bash
 make sim-ptp_ts_capture
+```
+
+---
+
+## 3. Cross-domain time snapshot — `rtl/ptp_time_snapshot.sv`
+
+The counter lives in the network clock domain; the core / AXI domain has to read it coherently.
+
+**Why the obvious answer is wrong.** You cannot double-flop an 80-bit bus: each bit has its own routing delay, so a destination edge that lands mid-transition samples some old bits and some new ones, and the word it reads never existed. Gray code fixes this for a counter that steps by exactly 1 (one bit changes per step), but a PTP clock advances by an arbitrary Q8.32 period every cycle and renormalises at 10⁹, so many bits change per step. Gray is off the table.
+
+**What this does instead: request → latch → handshake → read.**
+
+```
+ dst (core clk)                                   src (network clk)
+ ─────────────                                    ─────────────────
+ dst_req ──▶ req_tgl ─┐                      ┌──▶ req_sync[2] ──▶ (req_s != req_seen) ?
+                      │  2-flop ASYNC_REG    │        │
+                      └──────────────────────┘        ▼   one src cycle:
+                                                     snap <= {time_sec, time_ns}
+                                                     req_seen <= req_s
+ ack_sync[2] ◀────────────────────────────────────── ack_tgl <= ~ack_tgl
+      │
+      ▼  when ack_s == req_tgl: snap has been frozen for ≥ 2 dst cycles
+ dst_sec/dst_ns <= snap   (multi-cycle path, qualified by the synchronised ack)
+ dst_done pulse
+```
+
+Only the two single-bit toggle flags are synchronised. The 80-bit bus crosses as a multi-cycle path whose source register is frozen while the destination samples it (the MCP formulation from Cummings' SNUG 2008 CDC paper). [synth/ptp_cdc.xdc](synth/ptp_cdc.xdc) carries the `set_false_path` on the toggles and a `set_max_delay -datapath_only` / `set_bus_skew` of one source period on the bus, which is the bound the handshake relies on.
+
+### Verification — `tb/tb_ptp_time_snapshot.sv`
+
+Two free-running clocks: the source at 6.4 ns driving a live clock core, and the destination swept through four regimes, each restarted at a random phase offset. For every snapshot the TB checks **coherence** (the 80-bit value exactly matches an entry in a ring of values the source clock actually held), **bracketing** (`t_req ≤ snapshot ≤ t_done`), **bounded latency**, and **monotonicity**.
+
+The same bus also feeds `tb/naive_bus_sync.sv`, a plain per-bit double-flop with random wire skew of up to 3 ns per bit. Its output is sampled on every destination edge and checked against the same history ring.
+
+| regime | dst period | snapshots | errors | naive double-flop torn reads |
+|---|---|---|---|---|
+| T1 dst slower | 10.00 ns | 2000 | 0 | 21.9 % |
+| T2 dst faster | 4.00 ns | 2000 | 0 | 12.5 % |
+| T3 dst near-equal | 6.41 ns | 4000 | 0 | 13.0 % |
+| T4 dst near-equal | 6.39 ns | 4000 | 0 | 13.2 % |
+
+The near-equal cases matter most: the edges sweep slowly through every relative phase, which is the regime that exposes races in a wrong design. The test only passes if the handshake has zero errors **and** the naive model actually tears, so the comparison can't silently degrade into a no-op.
+
+```bash
+make sim-ptp_time_snapshot
 ```
 
 ---

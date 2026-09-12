@@ -17,6 +17,7 @@ BUILD_DIR = build
 
 RTL_SRCS  = $(wildcard $(RTL_DIR)/*.sv)
 TB_SRCS   = $(wildcard $(TB_DIR)/tb_*.sv)
+TB_LIBS   = $(filter-out $(TB_SRCS),$(wildcard $(TB_DIR)/*.sv))   # TB-only helper models
 TB_NAMES  = $(patsubst $(TB_DIR)/tb_%.sv,%,$(TB_SRCS))
 
 IVFLAGS   = -g2012 -Wall -Wno-timescale
@@ -32,8 +33,8 @@ all: sim
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-$(BUILD_DIR)/tb_%.vvp: $(TB_DIR)/tb_%.sv $(RTL_SRCS) | $(BUILD_DIR)
-	$(IVERILOG) $(IVFLAGS) -s tb_$* -o $@ $(RTL_SRCS) $<
+$(BUILD_DIR)/tb_%.vvp: $(TB_DIR)/tb_%.sv $(RTL_SRCS) $(TB_LIBS) | $(BUILD_DIR)
+	$(IVERILOG) $(IVFLAGS) -s tb_$* -o $@ $(RTL_SRCS) $(TB_LIBS) $<
 
 sim-%: $(BUILD_DIR)/tb_%.vvp
 	@$(VVP) -N $< $(PLUSARGS) | tee $(BUILD_DIR)/tb_$*.log
