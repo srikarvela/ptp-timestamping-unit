@@ -11,7 +11,7 @@ Every block exists because the one next to it needs it: the clock has to be read
 | Step | Block | Status |
 |---|---|---|
 | 1 | IEEE-1588 clock core (`ptp_clock_core`) | ✔ RTL + self-checking TB |
-| 2 | Timestamp capture unit | ☐ |
+| 2 | Timestamp capture unit (`ptp_ts_capture`, `sync_fifo`) | ✔ RTL + TB |
 | 3 | Cross-domain time snapshot (handshake CDC) | ☐ |
 | 4 | Latency histogram engine + AXI-Lite | ☐ |
 | 5 | Simulink PI servo model + golden-vector diff | ☐ |
@@ -87,6 +87,28 @@ Directed tests on top of the per-cycle compare:
 
 ```bash
 make sim-ptp_clock_core           # add WAVES=1 for build/tb_ptp_clock_core.vcd
+```
+
+---
+
+## 2. Timestamp capture — `rtl/ptp_ts_capture.sv`
+
+On the rising edge of an event strobe the current `{sec, ns}` is latched and pushed into a synchronous FIFO (`rtl/sync_fifo.sv`, depth 2ⁿ, drop-on-full). A downstream consumer, the latency histogram or software, pops timestamps in order.
+
+- **Resolution is one network-clock period: 6.4 ns at 156.25 MHz.** The fractional accumulator bits are not captured; they describe the clock's rate, not where the event sits inside the period. Sub-period interpolation needs a device-specific delay line or oversampled phase detector and is deliberately out of scope for a simulation-only design.
+- **Event input**: `EVENT_SYNC_STAGES = 0` for a strobe already in the network clock domain (a MAC start-of-frame pulse); `≥ 2` passes an asynchronous strobe through that many `ASYNC_REG` flops first, adding a fixed latency that cancels in any `t_out − t_in`.
+- **Overflow**: an event arriving while the FIFO is full is dropped and a saturating `drop_count` increments, so software can tell when the histogram is incomplete. Two capture units (ingress / egress) feed the histogram engine.
+
+### Verification — `tb/tb_ptp_ts_capture.sv`
+
+| test | what it proves |
+|---|---|
+| T1 random strobes + back-pressure | 1.5 k timestamps popped in order, each exactly equal to the time the clock held in the cycle the strobe was sampled |
+| T2 overflow | 20 strobes with pops stalled → 16 kept, 4 dropped, the survivors are the *first* 16, `drop_clear` works |
+| T3 async strobe | strobes from an unrelated 73 MHz clock through the 2-flop synchroniser land within 4 periods of the event, monotonic |
+
+```bash
+make sim-ptp_ts_capture
 ```
 
 ---
