@@ -1,0 +1,32 @@
+# Claude Code local settings
+.claude/
+
+# Simulation outputs
+build/
+*.vcd
+*.fst
+*.lxt
+*.vvp
+
+# Vivado / synthesis outputs
+synth/vivado/
+synth/*.log
+synth/*.jou
+synth/.Xil/
+*.jou
+*.log
+.Xil/
+
+# MATLAB / Simulink
+matlab/slprj/
+matlab/*.slxc
+matlab/*.autosave
+matlab/*.asv
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# macOS
+.DS_Store
