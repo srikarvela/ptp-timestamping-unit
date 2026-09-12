@@ -13,7 +13,7 @@ Every block exists because the one next to it needs it: the clock has to be read
 | 1 | IEEE-1588 clock core (`ptp_clock_core`) | ✔ RTL + self-checking TB |
 | 2 | Timestamp capture unit (`ptp_ts_capture`, `sync_fifo`) | ✔ RTL + TB |
 | 3 | Cross-domain time snapshot (`ptp_time_snapshot`, handshake CDC) | ✔ RTL + two-clock TB + XDC |
-| 4 | Latency histogram engine + AXI-Lite | ☐ |
+| 4 | Latency histogram engine + AXI-Lite top (`ptp_latency_hist`, `cdc_bus_bridge`, `ptp_net_regs`, `axi_lite_regs`, `ptp_tsu_top`) | ✔ RTL + unit TB + system TB |
 | 5 | Simulink PI servo model + golden-vector diff | ☐ |
 | — | Vivado OOC synthesis: Fmax, LUT/FF/BRAM, timing | ☐ |
 
@@ -155,6 +155,52 @@ The near-equal cases matter most: the edges sweep slowly through every relative 
 
 ```bash
 make sim-ptp_time_snapshot
+```
+
+---
+
+## 4. Latency histogram engine — `rtl/ptp_latency_hist.sv`
+
+A hardware profiler for `Δ = t_out − t_in`. The n-th egress timestamp is paired with the n-th ingress timestamp (in-order pipeline assumption); a sample is taken whenever both capture FIFOs have data.
+
+- **Delta**: `sec_diff·10⁹ + (out_ns − in_ns)`, exact for seconds differences up to 5 (a constant mux plus one 35-bit add), saturating at 2³²−1 ns beyond that; `t_out < t_in` goes to a separate negative counter and is not binned.
+- **Binning**: dense HdrHistogram-style log₂ with 2 sub-bins per octave. Deltas below 8 ns index linearly; above that the bin is `4·msb + sub − 4` where `msb` comes from a priority encoder and `sub` is the two bits under it. Edges: 0…7, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, … ns, 25 % relative width, 124 bins up to 4.29 s. The priority encoder is nearly free in LUTs.
+- **Storage**: counters in a `ram_style = "block"` RAM, read-modify-write with one-deep forwarding so back-to-back samples into the same bin count correctly (and the RAM's read-during-write collision value is never used). The RAM is swept to zero out of reset, so no init file is needed.
+- **Stats**: count, 64-bit sum, min, max, negative count. Mean is `sum / count` in software; there is no divider in hardware.
+- **Host access**: a one-bin read port that steals the read cycle from the sample pipeline, and a clear that sweeps all bins and stats.
+
+### System integration — `rtl/ptp_tsu_top.sv`
+
+```
+ network clock domain                                 AXI clock domain
+ ───────────────────────────────                      ──────────────────────
+ ptp_clock_core ─┬─▶ ptp_ts_capture (in)  ─┐          axi_lite_regs
+                 ├─▶ ptp_ts_capture (out) ─┴▶ ptp_latency_hist   0x000-0x0FF local
+                 │                                 │              0x100+  ──▶ cdc_bus_bridge ──▶ ptp_net_regs
+                 └─▶ ptp_time_snapshot ◀───────────┼──────────────── CTRL.SNAP_REQ
+                                                   └── bin read port / stats / control
+```
+
+Everything that touches the clock lives in the network domain behind `rtl/ptp_net_regs.sv`. The AXI-Lite slave (`rtl/axi_lite_regs.sv`) answers the ID / status / snapshot words itself and forwards every other access through `rtl/cdc_bus_bridge.sv`, which is the same two-phase toggle handshake as the time snapshot generalised to carry `{addr, wdata, we}` across and `rdata` back. One transaction is in flight at a time, and the payload registers are frozen while their toggle is in flight, so they cross as multi-cycle paths exactly like the snapshot bus. Full map: [docs/REGMAP.md](docs/REGMAP.md); Python conversions (ppb → `FREQ_ADJ`, bin index ↔ edges): [python/ptp_tsu.py](python/ptp_tsu.py).
+
+### Verification
+
+`tb/tb_ptp_latency_hist.sv` (unit) checks every bin and all five statistics against a behavioural reference: directed bin edges, 500 back-to-back samples into one bin (the forwarding hazard), 10 k random pairs including second-boundary crossings, negatives and saturation with host reads interleaved, and clear.
+
+`tb/tb_ptp_tsu_top.sv` (system) drives the whole unit over AXI-Lite at 100 MHz against the 156.25 MHz network clock at random phase:
+
+| test | what it proves |
+|---|---|
+| T1–T2 | ID/version; control registers written and read back through the bridge; SET loads the clock |
+| T3 | 20 coherent snapshots over AXI, each bracketed by network-side time at request and completion |
+| T4 | `FREQ_ADJ` = +100 ppm written over AXI: 1 ms measures 1 000 100.0 ns |
+| T5 | `ADJ_NS` phase step of 1234 ns appears in the next snapshot |
+| T6 | 2000 strobe pairs with random delays: `HIST_COUNT`, min, max, 64-bit sum and all 128 bins read over AXI match a reference built from the exact network-side timestamps |
+| T7 | `HIST_CLEAR` zeroes bins and stats; drop counters are 0 |
+
+```bash
+make sim-ptp_latency_hist
+make sim-ptp_tsu_top
 ```
 
 ---
