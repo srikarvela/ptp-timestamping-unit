@@ -1,0 +1,16 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+-------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
+| Date         : Tue Sep 15 23:08:13 2026
+| Host         : SRIKARVELA8715 running 64-bit major release  (build 9200)
+| Command      : report_exceptions -ignored -file C:/work/ptp-timestamping-unit/synth/reports/xc7k160tffg676-2/post_route_exceptions_ignored.rpt
+| Design       : ptp_tsu_top
+| Device       : 7k160t-ffg676
+| Speed File   : -2  PRODUCTION 1.12 2017-02-17
+| Design State : Routed
+-------------------------------------------------------------------------------------------------------------------------------------------------
+
+Exceptions Report
+
+No ignored timing exceptions found.
+

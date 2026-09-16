@@ -1,0 +1,25 @@
+ptp_tsu_top out-of-context build
+part xc7z020clg400-3   Vivado 2024.1   2026-09-15 23:00
+
+--- post_synth ---
+net_clk  period  6.400 ns ( 156.25 MHz)  WNS  -0.705 ns  WHS 0.156 ns  Fmax  140.75 MHz
+         critical path: 12 logic levels, u_hist/bin_mem_reg/CLKARDCLK -> u_hist/bin_mem_reg/DIBDI[15]
+aclk     period 10.000 ns ( 100.00 MHz)  WNS  +7.703 ns  WHS 0.156 ns  Fmax  435.35 MHz
+         critical path: 3 logic levels, u_axi/addr_q_reg[1]/C -> u_axi/s_axi_rdata_reg[0]/D
+net_clk  -> aclk     worst constrained CDC slack  +5.688 ns
+aclk     -> net_clk  worst constrained CDC slack  +5.688 ns
+LUTs 1347 (logic 1235, memory 112)   FFs 1451   BRAM tiles 0.5   DSPs 0
+report_cdc: 0 Critical, 158 Warning entries (see post_synth_cdc.rpt)
+
+--- post_route ---
+net_clk  period  6.400 ns ( 156.25 MHz)  WNS  +0.242 ns  WHS 0.099 ns  Fmax  162.39 MHz
+         critical path: 14 logic levels, u_clk/time_ns_reg[6]/C -> u_clk/time_ns_reg[3]/D
+aclk     period 10.000 ns ( 100.00 MHz)  WNS  +5.200 ns  WHS 0.099 ns  Fmax  208.33 MHz
+         critical path: 2 logic levels, u_axi/FSM_sequential_state_reg[0]/C -> u_axi/br_wdata_reg[25]/CE
+net_clk  -> aclk     worst constrained CDC slack  +5.171 ns
+aclk     -> net_clk  worst constrained CDC slack  +5.207 ns
+LUTs 1289 (logic 1181, memory 108)   FFs 1451   BRAM tiles 0.5   DSPs 0
+report_cdc: 0 Critical, 158 Warning entries (see post_route_cdc.rpt)
+
+elapsed 297 s
+

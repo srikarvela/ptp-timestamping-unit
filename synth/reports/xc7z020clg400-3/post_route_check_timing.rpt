@@ -1,0 +1,283 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
+| Date         : Tue Sep 15 23:03:52 2026
+| Host         : SRIKARVELA8715 running 64-bit major release  (build 9200)
+| Command      : check_timing -verbose -file C:/work/ptp-timestamping-unit/synth/reports/xc7z020clg400-3/post_route_check_timing.rpt
+| Design       : ptp_tsu_top
+| Device       : 7z020-clg400
+| Speed File   : -3  PRODUCTION 1.12 2019-11-22
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+
+check_timing report
+
+Table of Contents
+-----------------
+1. checking no_clock (0)
+2. checking constant_clock (0)
+3. checking pulse_width_clock (0)
+4. checking unconstrained_internal_endpoints (0)
+5. checking no_input_delay (65)
+6. checking no_output_delay (118)
+7. checking multiple_clock (0)
+8. checking generated_clocks (0)
+9. checking loops (0)
+10. checking partial_input_delay (0)
+11. checking partial_output_delay (0)
+12. checking latch_loops (0)
+
+1. checking no_clock (0)
+------------------------
+ There are 0 register/latch pins with no clock.
+
+
+2. checking constant_clock (0)
+------------------------------
+ There are 0 register/latch pins with constant_clock.
+
+
+3. checking pulse_width_clock (0)
+---------------------------------
+ There are 0 register/latch pins which need pulse_width check
+
+
+4. checking unconstrained_internal_endpoints (0)
+------------------------------------------------
+ There are 0 pins that are not constrained for maximum delay.
+
+ There are 0 pins that are not constrained for maximum delay due to constant clock.
+
+
+5. checking no_input_delay (65)
+-------------------------------
+ There are 65 input ports with no input delay specified. (HIGH)
+
+aresetn
+event_in
+event_out
+net_rst_n
+s_axi_araddr[0]
+s_axi_araddr[10]
+s_axi_araddr[11]
+s_axi_araddr[1]
+s_axi_araddr[2]
+s_axi_araddr[3]
+s_axi_araddr[4]
+s_axi_araddr[5]
+s_axi_araddr[6]
+s_axi_araddr[7]
+s_axi_araddr[8]
+s_axi_araddr[9]
+s_axi_arvalid
+s_axi_awaddr[0]
+s_axi_awaddr[10]
+s_axi_awaddr[11]
+s_axi_awaddr[1]
+s_axi_awaddr[2]
+s_axi_awaddr[3]
+s_axi_awaddr[4]
+s_axi_awaddr[5]
+s_axi_awaddr[6]
+s_axi_awaddr[7]
+s_axi_awaddr[8]
+s_axi_awaddr[9]
+s_axi_awvalid
+s_axi_bready
+s_axi_rready
+s_axi_wdata[0]
+s_axi_wdata[10]
+s_axi_wdata[11]
+s_axi_wdata[12]
+s_axi_wdata[13]
+s_axi_wdata[14]
+s_axi_wdata[15]
+s_axi_wdata[16]
+s_axi_wdata[17]
+s_axi_wdata[18]
+s_axi_wdata[19]
+s_axi_wdata[1]
+s_axi_wdata[20]
+s_axi_wdata[21]
+s_axi_wdata[22]
+s_axi_wdata[23]
+s_axi_wdata[24]
+s_axi_wdata[25]
+s_axi_wdata[26]
+s_axi_wdata[27]
+s_axi_wdata[28]
+s_axi_wdata[29]
+s_axi_wdata[2]
+s_axi_wdata[30]
+s_axi_wdata[31]
+s_axi_wdata[3]
+s_axi_wdata[4]
+s_axi_wdata[5]
+s_axi_wdata[6]
+s_axi_wdata[7]
+s_axi_wdata[8]
+s_axi_wdata[9]
+s_axi_wvalid
+
+ There are 0 input ports with no input delay but user has a false path constraint.
+
+
+6. checking no_output_delay (118)
+---------------------------------
+ There are 118 ports with no output delay specified. (HIGH)
+
+pps
+s_axi_arready
+s_axi_awready
+s_axi_bvalid
+s_axi_rdata[0]
+s_axi_rdata[10]
+s_axi_rdata[11]
+s_axi_rdata[12]
+s_axi_rdata[13]
+s_axi_rdata[14]
+s_axi_rdata[15]
+s_axi_rdata[16]
+s_axi_rdata[17]
+s_axi_rdata[18]
+s_axi_rdata[19]
+s_axi_rdata[1]
+s_axi_rdata[20]
+s_axi_rdata[21]
+s_axi_rdata[22]
+s_axi_rdata[23]
+s_axi_rdata[24]
+s_axi_rdata[25]
+s_axi_rdata[26]
+s_axi_rdata[27]
+s_axi_rdata[28]
+s_axi_rdata[29]
+s_axi_rdata[2]
+s_axi_rdata[30]
+s_axi_rdata[31]
+s_axi_rdata[3]
+s_axi_rdata[4]
+s_axi_rdata[5]
+s_axi_rdata[6]
+s_axi_rdata[7]
+s_axi_rdata[8]
+s_axi_rdata[9]
+s_axi_rvalid
+s_axi_wready
+time_ns[0]
+time_ns[10]
+time_ns[11]
+time_ns[12]
+time_ns[13]
+time_ns[14]
+time_ns[15]
+time_ns[16]
+time_ns[17]
+time_ns[18]
+time_ns[19]
+time_ns[1]
+time_ns[20]
+time_ns[21]
+time_ns[22]
+time_ns[23]
+time_ns[24]
+time_ns[25]
+time_ns[26]
+time_ns[27]
+time_ns[28]
+time_ns[29]
+time_ns[2]
+time_ns[30]
+time_ns[31]
+time_ns[3]
+time_ns[4]
+time_ns[5]
+time_ns[6]
+time_ns[7]
+time_ns[8]
+time_ns[9]
+time_sec[0]
+time_sec[10]
+time_sec[11]
+time_sec[12]
+time_sec[13]
+time_sec[14]
+time_sec[15]
+time_sec[16]
+time_sec[17]
+time_sec[18]
+time_sec[19]
+time_sec[1]
+time_sec[20]
+time_sec[21]
+time_sec[22]
+time_sec[23]
+time_sec[24]
+time_sec[25]
+time_sec[26]
+time_sec[27]
+time_sec[28]
+time_sec[29]
+time_sec[2]
+time_sec[30]
+time_sec[31]
+time_sec[32]
+time_sec[33]
+time_sec[34]
+time_sec[35]
+time_sec[36]
+time_sec[37]
+time_sec[38]
+time_sec[39]
+time_sec[3]
+time_sec[40]
+time_sec[41]
+time_sec[42]
+time_sec[43]
+time_sec[44]
+time_sec[45]
+time_sec[46]
+time_sec[47]
+time_sec[4]
+time_sec[5]
+time_sec[6]
+time_sec[7]
+time_sec[8]
+time_sec[9]
+
+ There are 0 ports with no output delay but user has a false path constraint
+
+ There are 0 ports with no output delay but with a timing clock defined on it or propagating through it
+
+
+7. checking multiple_clock (0)
+------------------------------
+ There are 0 register/latch pins with multiple clocks.
+
+
+8. checking generated_clocks (0)
+--------------------------------
+ There are 0 generated clocks that are not connected to a clock source.
+
+
+9. checking loops (0)
+---------------------
+ There are 0 combinational loops in the design.
+
+
+10. checking partial_input_delay (0)
+------------------------------------
+ There are 0 input ports with partial input delay specified.
+
+
+11. checking partial_output_delay (0)
+-------------------------------------
+ There are 0 ports with partial output delay specified.
+
+
+12. checking latch_loops (0)
+----------------------------
+ There are 0 combinational latch loops in the design through latch input
+
+

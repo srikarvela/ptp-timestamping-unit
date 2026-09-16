@@ -1,0 +1,41 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
+| Date         : Tue Sep 15 23:06:27 2026
+| Host         : SRIKARVELA8715 running 64-bit major release  (build 9200)
+| Command      : report_utilization -hierarchical -hierarchical_depth 2 -file C:/work/ptp-timestamping-unit/synth/reports/xc7k160tffg676-2/post_synth_utilization_hier.rpt
+| Design       : ptp_tsu_top
+| Device       : xc7k160tffg676-2
+| Speed File   : -2
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++-----------------+-------------------+------------+------------+---------+------+------+--------+--------+------------+
+|     Instance    |       Module      | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | DSP Blocks |
++-----------------+-------------------+------------+------------+---------+------+------+--------+--------+------------+
+| ptp_tsu_top     |             (top) |       1347 |       1235 |     112 |    0 | 1451 |      0 |      1 |          0 |
+|   (ptp_tsu_top) |             (top) |          0 |          0 |       0 |    0 |    0 |      0 |      0 |          0 |
+|   u_axi         |     axi_lite_regs |         95 |         95 |       0 |    0 |  210 |      0 |      0 |          0 |
+|   u_bridge      |    cdc_bus_bridge |         90 |         90 |       0 |    0 |  164 |      0 |      0 |          0 |
+|   u_cap_in      |    ptp_ts_capture |         78 |         22 |      56 |    0 |   27 |      0 |      0 |          0 |
+|     (u_cap_in)  |    ptp_ts_capture |          5 |          5 |       0 |    0 |   17 |      0 |      0 |          0 |
+|     u_fifo      |       sync_fifo_1 |         73 |         17 |      56 |    0 |   10 |      0 |      0 |          0 |
+|   u_cap_out     |  ptp_ts_capture_0 |        158 |        102 |      56 |    0 |   27 |      0 |      0 |          0 |
+|     (u_cap_out) |  ptp_ts_capture_0 |          5 |          5 |       0 |    0 |   17 |      0 |      0 |          0 |
+|     u_fifo      |         sync_fifo |        153 |         97 |      56 |    0 |   10 |      0 |      0 |          0 |
+|   u_clk         |    ptp_clock_core |        355 |        355 |       0 |    0 |  153 |      0 |      0 |          0 |
+|   u_hist        |  ptp_latency_hist |        380 |        380 |       0 |    0 |  480 |      0 |      1 |          0 |
+|   u_regs        |      ptp_net_regs |        185 |        185 |       0 |    0 |  221 |      0 |      0 |          0 |
+|   u_snap        | ptp_time_snapshot |          6 |          6 |       0 |    0 |  169 |      0 |      0 |          0 |
++-----------------+-------------------+------------+------------+---------+------+------+--------+--------+------------+
+
+

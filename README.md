@@ -4,7 +4,105 @@ A hardware timestamping and latency-measurement unit in SystemVerilog: a 1588 cl
 
 Every block exists because the one next to it needs it: the clock has to be read across domains, the timestamps have to be turned into a measurement, and the servo has to be modeled to know the clock converges.
 
+**Headline results**
+
+- Meets the 156.25 MHz 10 Gigabit Ethernet clock on a Kintex-7 (+0.877 ns slack) and on a −3 Zynq-7020 (+0.242 ns), in 1281 LUTs and half a block RAM
+- Zero critical findings from Vivado's clock-domain-crossing checker, on a crossing where the textbook answer, Gray coding, does not apply
+- 12 000 cross-domain snapshots with no torn reads, while a naive double-flop tears 12–22 % of reads in the same testbench
+- RTL clock state bit-identical to a Simulink-derived model across 300 servo steps and 46.9 million cycles
+- Timing closure took four iterations, one of which was spent discovering that Vivado had optimised the fix away
+
 ---
+
+## What problem this solves
+
+Networked machines disagree about what time it is. Their crystals drift apart by tens of
+parts per million, which is milliseconds of error per minute, and a packet's travel time
+varies from one message to the next. **IEEE 1588**, usually called **PTP** for Precision
+Time Protocol, is the standard that fixes this: a master announces its time, each slave
+measures its own offset and the path delay, and steers its clock until the two agree.
+
+The protocol's accuracy is decided almost entirely by *where the timestamp is taken*.
+
+```mermaid
+flowchart LR
+    subgraph SW["timestamp in software — tens of microseconds of error"]
+        direction LR
+        A1["packet arrives"] --> A2["network card interrupt"] --> A3["driver"] --> A4["OS scheduler"] --> A5["application reads clock"]
+    end
+    subgraph HW["timestamp in hardware — this project"]
+        direction LR
+        B1["packet arrives"] --> B2["MAC raises a strobe"] --> B3["counter latched, same cycle"]
+    end
+```
+
+A timestamp taken by software inherits every queue, interrupt and scheduling delay between
+the wire and the application, and those vary unpredictably. A timestamp taken in the
+network interface's own clock domain, the instant the packet's first bit crosses a fixed
+point, does not. That hardware unit is what this project builds.
+
+Sub-microsecond synchronisation is not achievable without it. This is why PTP-capable
+network cards, switches and FPGAs all carry a hardware timestamping unit, and why this
+block is standard content in any design that touches precision timing.
+
+## How PTP uses these timestamps
+
+Four timestamps per exchange, two of which this hardware produces on the slave side:
+
+```mermaid
+sequenceDiagram
+    participant M as master clock
+    participant S as slave clock — this design
+    M->>S: Sync
+    Note right of S: t2 latched in hardware on arrival
+    M->>S: Follow_Up carrying t1
+    Note left of M: t1 was latched when Sync left
+    S->>M: Delay_Req
+    Note right of S: t3 latched in hardware on departure
+    M->>S: Delay_Resp carrying t4
+    Note over M,S: offset = ((t2 − t1) − (t4 − t3)) / 2<br/>path delay = ((t2 − t1) + (t4 − t3)) / 2
+```
+
+The servo then turns that offset into a correction. A large offset is applied as a single
+jump; small ones are corrected by *slewing* the clock's rate, so time stays monotonic and
+never jumps backwards. Both mechanisms are implemented here, and the servo that drives
+them is modelled in Simulink and diffed against the hardware.
+
+## Where this is used
+
+| Domain | What it needs timestamps for | Typical requirement |
+|---|---|---|
+| **Trading systems** | Proving when an order was received and sent; measuring tick-to-trade latency. Regulations such as MiFID II RTS 25 require timestamps traceable to UTC within 100 µs, and firms run far tighter internally | microseconds down to nanoseconds |
+| **Mobile networks** | 5G fronthaul carries radio data over Ethernet; radios must agree on time or their transmissions interfere | sub-microsecond, often under 130 ns |
+| **Industrial control** | Time-Sensitive Networking schedules traffic into fixed windows so a robot's control loop cannot be delayed by other traffic | sub-microsecond |
+| **Broadcast** | SMPTE ST 2110 sends video, audio and metadata as separate streams that must be recombined in exact alignment | sub-microsecond |
+| **Power grids** | Substation equipment compares waveform phase between distant sites to locate faults | around 1 µs |
+| **Test and measurement** | Distributed instruments sampling a shared event on one timebase | nanoseconds |
+
+## A worked example
+
+Suppose this unit sits in a market-data feed handler, the same kind as the author's
+[fpga-crypto-feed-handler](https://github.com/srikarvela/fpga-crypto-feed-handler) project.
+
+- The MAC raises a strobe when a market-data packet's first byte arrives. The ingress
+  capture unit latches PTP time: **t_in**.
+- The pipeline parses the packet, updates the order book, and decides to send an order.
+- The MAC raises a second strobe as that order leaves. The egress capture latches
+  **t_out**.
+- The histogram engine computes `t_out − t_in` and drops it into a bin, in hardware, at
+  line rate.
+
+Software then reads one register for the sample count, another for the running sum, and
+128 bin counters, and gets the full latency distribution: not just the average, but the
+shape of the tail. A mean of 300 ns hides the fact that one packet in ten thousand took
+9 µs, and the tail is exactly what a trading system cares about. Because binning is
+logarithmic, a handful of counters covers everything from 1 nanosecond to 4 seconds at
+25 % resolution, so nothing needs to be configured in advance to catch an outlier.
+
+The same arrangement measures switch latency, processing jitter through a DSP chain, or
+the round trip of a control loop. Wherever two strobes can be placed, this measures the
+distribution between them.
+
 
 ## 🚧 Project Status
 
@@ -15,7 +113,7 @@ Every block exists because the one next to it needs it: the clock has to be read
 | 3 | Cross-domain time snapshot (`ptp_time_snapshot`, handshake CDC) | ✔ RTL + two-clock TB + XDC |
 | 4 | Latency histogram engine + AXI-Lite top (`ptp_latency_hist`, `cdc_bus_bridge`, `ptp_net_regs`, `axi_lite_regs`, `ptp_tsu_top`) | ✔ RTL + unit TB + system TB |
 | 5 | Simulink PI servo model + bit-exact golden vectors + RTL diff (`matlab/`, `tb_servo_golden`, `python/servo_diff.py`) | ✔ |
-| — | Vivado OOC synthesis: Fmax, LUT/FF/BRAM, timing | ☐ |
+| — | Vivado OOC synthesis: Fmax, LUT/FF/BRAM, timing | ✔ reports in [synth/reports](synth/reports) |
 
 Simulation: Icarus Verilog 12 (`make sim`). Synthesis: Vivado out-of-context (`make synth`, Linux/Windows). Servo model: MATLAB R2026a / Simulink (`make matlab`).
 
@@ -23,29 +121,39 @@ Simulation: Icarus Verilog 12 (`make sim`). Synthesis: Vivado out-of-context (`m
 
 ## 📐 Architecture
 
-```
- network clock domain (156.25 MHz)              core / AXI clock domain
- ───────────────────────────────────────        ──────────────────────────────
-                                          
-   nom_incr ──┐                                   ┌──────────────────────┐
-   freq_adj ──┤  ┌───────────────────┐  time      │  AXI-Lite registers  │
-   set/adj  ──┴─▶│  ptp_clock_core   │──┬────────▶│   (nom_incr, adj,    │
-                 │  48b sec . 32b ns │  │  req/ack │    snapshot, hist)   │
-                 │  Q8.32 DDS accum. │  │◀────────▶│                      │
-                 └───────────────────┘  │  CDC     └──────────┬───────────┘
-                                        │  handshake          │
-   event_in  ───▶┌───────────────────┐  │                     │
-   event_out ───▶│ timestamp capture │◀─┘                     │
-                 │ t_in / t_out      │──┐                     │
-                 └───────────────────┘  │  Δ = t_out − t_in   │
-                                        ▼                     │
-                 ┌───────────────────┐                        │
-                 │ latency histogram │  log₂ bins in BRAM,    │
-                 │ min/max/sum/count │  read out over AXI ────┘
-                 └───────────────────┘
+```mermaid
+flowchart LR
+  subgraph NET["network clock domain — 156.25 MHz"]
+    direction TB
+    CLK["ptp_clock_core<br/>48b sec · 32b ns<br/>Q8.32 DDS accumulator"]
+    CAPI["ptp_ts_capture<br/>ingress"]
+    CAPO["ptp_ts_capture<br/>egress"]
+    HIST["ptp_latency_hist<br/>log2 bins in BRAM<br/>count / sum / min / max"]
+    NREG["ptp_net_regs"]
+  end
 
-   Simulink PI servo (offset, mean path delay, drift, PDV) ──▶ golden vectors ──▶ RTL diff
+  subgraph AXID["AXI clock domain — 100 MHz"]
+    direction TB
+    AREG["axi_lite_regs"]
+  end
+
+  EVI(["event_in"]) --> CAPI
+  EVO(["event_out"]) --> CAPO
+  CLK -- "live time" --> CAPI
+  CLK -- "live time" --> CAPO
+  CAPI -- "t_in" --> HIST
+  CAPO -- "t_out" --> HIST
+  HIST -- "bins + stats" --> NREG
+  NREG <--> BR["cdc_bus_bridge<br/>toggle handshake"]
+  BR <--> AREG
+  CLK --> SNAP["ptp_time_snapshot<br/>toggle handshake"]
+  SNAP -- "coherent sec:ns" --> AREG
+  AREG <--> HOST(["AXI4-Lite host"])
+  SERVO["Simulink PI servo<br/>drift · packet delay variation"] -. "golden vectors" .-> CLK
 ```
+
+Two asynchronous clocks. Everything that touches time lives in the network domain;
+the AXI domain reaches it only through the two handshakes.
 
 ---
 
@@ -68,7 +176,7 @@ incr_eff = nom_incr + freq_adj
 - **Phase adjust**: one-shot signed `(adj_sec, adj_ns)` added in the same cycle as the normal increment; ns is renormalised into `[0, 1e9)` with a single ±1e9 correction (requires `|adj_ns| < 1e9`).
 - **Absolute load**: `set_valid` loads `(set_sec, set_ns)` and clears the fractional accumulator.
 - **pps**: one-cycle pulse whenever the ns field carries into seconds.
-- **Critical path**: one 34-bit three-operand add, a compare against 1e9 and a ±1e9 mux. The `nom_incr + freq_adj` add is registered so it is not in series with the accumulator.
+- **Critical path**: written the obvious way, the fraction accumulator, nanosecond add, compare against 1e9 and seconds add form one 148-bit ripple, and that cost the design 4.2 ns of slack on the first synthesis run. The arithmetic is now speculative: every add runs in parallel from the registers and multiplexers pick the result. See [section 6](#6-synthesis-results) for how that unfolded.
 
 ### Verification — `tb/tb_ptp_clock_core.sv`
 
@@ -119,21 +227,20 @@ The counter lives in the network clock domain; the core / AXI domain has to read
 
 **Why the obvious answer is wrong.** You cannot double-flop an 80-bit bus: each bit has its own routing delay, so a destination edge that lands mid-transition samples some old bits and some new ones, and the word it reads never existed. Gray code fixes this for a counter that steps by exactly 1 (one bit changes per step), but a PTP clock advances by an arbitrary Q8.32 period every cycle and renormalises at 10⁹, so many bits change per step. Gray is off the table.
 
-**What this does instead: request → latch → handshake → read.**
+**What this does instead: request, latch, handshake, read.**
 
-```
- dst (core clk)                                   src (network clk)
- ─────────────                                    ─────────────────
- dst_req ──▶ req_tgl ─┐                      ┌──▶ req_sync[2] ──▶ (req_s != req_seen) ?
-                      │  2-flop ASYNC_REG    │        │
-                      └──────────────────────┘        ▼   one src cycle:
-                                                     snap <= {time_sec, time_ns}
-                                                     req_seen <= req_s
- ack_sync[2] ◀────────────────────────────────────── ack_tgl <= ~ack_tgl
-      │
-      ▼  when ack_s == req_tgl: snap has been frozen for ≥ 2 dst cycles
- dst_sec/dst_ns <= snap   (multi-cycle path, qualified by the synchronised ack)
- dst_done pulse
+```mermaid
+sequenceDiagram
+    autonumber
+    participant D as dst — AXI clock
+    participant S as src — network clock
+    D->>D: dst_req pulse, flip req_tgl
+    D-->>S: req_tgl crosses a 2-flop ASYNC_REG synchroniser
+    Note over S: toggle seen: latch {sec, ns} into snap<br/>in ONE src cycle, then freeze it
+    S->>S: flip ack_tgl
+    S-->>D: ack_tgl crosses its own 2-flop synchroniser
+    Note over D: ack_s == req_tgl, so snap has been frozen<br/>for at least two dst cycles
+    D->>D: copy snap into dst_sec / dst_ns, pulse dst_done
 ```
 
 Only the two single-bit toggle flags are synchronised. The 80-bit bus crosses as a multi-cycle path whose source register is frozen while the destination samples it (the MCP formulation from Cummings' SNUG 2008 CDC paper). [synth/ptp_cdc.xdc](synth/ptp_cdc.xdc) carries the `set_false_path` on the toggles and a `set_max_delay -datapath_only` / `set_bus_skew` of one source period on the bus, which is the bound the handshake relies on.
@@ -165,6 +272,17 @@ A hardware profiler for `Δ = t_out − t_in`. The n-th egress timestamp is pair
 
 - **Delta**: `sec_diff·10⁹ + (out_ns − in_ns)`, exact for seconds differences up to 5 (a constant mux plus one 35-bit add), saturating at 2³²−1 ns beyond that; `t_out < t_in` goes to a separate negative counter and is not binned.
 - **Binning**: dense HdrHistogram-style log₂ with 2 sub-bins per octave. Deltas below 8 ns index linearly; above that the bin is `4·msb + sub − 4` where `msb` comes from a priority encoder and `sub` is the two bits under it. Edges: 0…7, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, … ns, 25 % relative width, 124 bins up to 4.29 s. The priority encoder is nearly free in LUTs.
+Pipeline, after timing closure forced the first stage apart:
+
+```mermaid
+flowchart LR
+    F(["ingress + egress<br/>capture FIFOs"]) --> A["1a<br/>seconds and ns<br/>subtracts"]
+    A --> B["1b<br/>combine, saturate,<br/>flag negatives"]
+    B --> C["1c<br/>log2 bin index<br/>priority encoder + shift"]
+    C --> D["2<br/>BRAM read-modify-write<br/>with forwarding"]
+    D --> E(["bins + count / sum / min / max"])
+```
+
 - **Storage**: counters in a `ram_style = "block"` RAM, read-modify-write with one-deep forwarding so back-to-back samples into the same bin count correctly (and the RAM's read-during-write collision value is never used). The RAM is swept to zero out of reset, so no init file is needed.
 - **Stats**: count, 64-bit sum, min, max, negative count. Mean is `sum / count` in software; there is no divider in hardware.
 - **Host access**: a one-bin read port that steals the read cycle from the sample pipeline, and a clear that sweeps all bins and stats.
@@ -211,11 +329,18 @@ The hardware above is only useful if a servo can discipline it. Step 5 models th
 
 **Simulink model** (`matlab/ptp_servo.slx`, generated by `build_servo_model.m`): a discrete PI loop at a 1 ms sync interval. The slave clock is a Forward-Euler integrator of the frequency error (oscillator drift minus correction), the measurement adds packet delay variation, and the PI output feeds back as a rate correction in ppb. Offsets are in ns and rates in ppb so the plant needs no scaling.
 
-```
- drift_ppb ──(+)──▶ ∫ offset_ns ──(+)──▶ meas_ns ─┬─▶ Kp ──(+)──▶ corr_ppb ──┐
-              (−)                 (+)              └─▶ Ki ▶ ∫ ──┘             │
-               ▲                 pdv_ns (σ = 50 ns)                          │
-               └─────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    DR(["oscillator drift<br/>+37.5 ppm, +12 ppm step at 150 ms"]) --> SUM(("+"))
+    CORR -- "correction, ppb" --> SUM
+    SUM --> PLANT["slave clock<br/>forward-Euler integrator"]
+    PLANT -- "true offset, ns" --> MEAS(("+"))
+    PDV(["packet delay variation<br/>Gaussian, sigma = 50 ns"]) --> MEAS
+    MEAS -- "measured offset" --> KP["Kp"]
+    MEAS --> KI["Ki"]
+    KI --> INT["integrator"]
+    KP --> CORR(("+"))
+    INT --> CORR
 ```
 
 Loop shape (Control System Toolbox): `s² + Kp·s + Ki` with `Kp = 88`, `Ki = 3948` gives ωₙ = 62.8 rad/s (10 Hz), ζ = 0.70, 2 % settling 78 ms. The interval is scaled down from the 125 ms–1 s of real PTP so the RTL replay stays short; the loop is invariant in ωₙ·Ts.
@@ -245,12 +370,157 @@ The vectors are committed, so the RTL diff runs without MATLAB.
 
 ---
 
+## 6. Synthesis results
+
+Out-of-context synthesis, place and route in Vivado 2024.1, driven by
+[synth/ooc_synth.tcl](synth/ooc_synth.tcl). Out of context means no I/O buffers and no
+board: the numbers below are internal register-to-register timing, which is what a block
+destined to sit inside a larger design should be judged on. Reports for every part are
+committed under [synth/reports](synth/reports).
+
+```bash
+make synth                                     # default part, synth + place + route
+vivado -mode batch -source ooc_synth.tcl -tclargs xc7k160tffg676-2 impl
+```
+
+### Results by device
+
+The same RTL, synthesised and routed for three parts. Speed grade is the suffix: −1 is the
+slowest silicon in the family, −3 the fastest.
+
+| Part | Board / class | Post-route WNS | Fmax (net_clk) | 156.25 MHz | LUTs | FFs | BRAM |
+|---|---|---|---|---|---|---|---|
+| `xc7z020clg400-1` | PYNQ-Z2, entry-level Zynq | −1.701 ns | 123.4 MHz | ✗ | 1380 | 1451 | 0.5 |
+| `xc7z020clg400-3` | same device, fastest grade | **+0.242 ns** | 162.4 MHz | ✓ | 1289 | 1451 | 0.5 |
+| `xc7k160tffg676-2` | Kintex-7, mid-range | **+0.877 ns** | 181.1 MHz | ✓ | 1281 | 1451 | 0.5 |
+
+**The design meets 156.25 MHz on a −3 Zynq-7020 and on a mid-range Kintex-7, and misses it
+on a −1 Zynq-7020, closing there at 123 MHz.** That is the honest result and it is the
+expected one: 156.25 MHz is the 10 Gigabit Ethernet datapath clock, and a design running at
+that line rate would not be placed on the slowest speed grade of an entry-level part. The
+PYNQ-Z2 figure is reported because it is the board this author already owns, not because
+the design is meant to live there.
+
+On the parts that close, the rest of the picture is comfortable:
+
+| Metric | xc7k160tffg676-2 | Note |
+|---|---|---|
+| AXI clock slack | +6.272 ns of 10 ns | the register interface is nowhere near critical |
+| Hold slack | +0.095 ns | positive on every path, both clocks |
+| CDC slack, network to AXI | +5.331 ns | against the one-period bound the handshake needs |
+| CDC slack, AXI to network | +5.395 ns | |
+| `report_cdc` critical findings | 0 | Vivado's own CDC checker, across all three parts |
+| Area | 1281 LUTs, 1451 FFs, 0.5 BRAM | 1.26 % of the device's LUTs, 0.72 % of its flip-flops |
+
+The remaining critical path on the fast parts is the histogram's block RAM
+read-modify-write loop: memory output, 32-bit increment, back to memory input, in one
+cycle. Breaking that further would mean either registering the RAM output and deepening the
+forwarding logic, or moving the bin counters into distributed RAM. Neither was needed to
+close, so neither was done.
+
+Vivado's CDC checker reporting zero critical findings is the result worth pointing at. It
+is an independent check on the handshake design: the tool confirms every crossing is
+synchronised and constrained, rather than taking the testbench's word for it.
+
+### Timing closure on the PYNQ-Z2 part (xc7z020clg400-1)
+
+The first run missed the 6.400 ns budget badly, and fixing it took four iterations. The
+interesting part is that the tool fought back in the middle of it.
+
+| Run | Change | Post-route WNS | Fmax | Critical path |
+|---|---|---|---|---|
+| 1 | baseline RTL | −4.192 ns | 94.4 MHz | clock core, fraction to seconds, 36 levels, 30 chained CARRY4 |
+| 2 | speculative parallel adds in the clock core | −3.264 ns | 103.5 MHz | same path, 27 levels: Vivado had re-merged the adders |
+| 3 | `DONT_TOUCH` on the speculative values | −3.007 ns | 106.3 MHz | histogram stage 1, 15 levels |
+| 4 | histogram delta/bin split into three stages | −1.701 ns | 123.4 MHz | clock core again, 15 levels |
+
+**Run 1.** Written the obvious way, the clock core is one 148-bit ripple: the 32-bit
+fraction accumulator carries into the 34-bit nanosecond add, which feeds the compare
+against 10⁹, which feeds the 48-bit seconds add. Thirty carry chains in series.
+
+**Run 2.** Rewritten so every add runs in parallel from the registers and multiplexers
+pick the answer: the nanosecond sum computed for both fraction carries, the compare
+replaced by the sign bit of an already-corrected value, and all three seconds outcomes
+precomputed. It barely helped, and the path report showed why: one chain still fed the
+next. Vivado had spotted that the corrected value is just the sum minus 10⁹, and that the
+three seconds values differ by one, treated them as common subexpressions, and rebuilt the
+serial structure to save area.
+
+**Run 3.** `DONT_TOUCH` on the six speculative values forbids that merge. The clock core
+path disappeared and the bottleneck moved to the histogram, whose first stage was doing a
+memory read, two wide subtracts, an add, a saturation compare, a priority encoder, a
+barrel shift and a subtract between two registers.
+
+**Run 4.** That stage became three: subtracts, then combine and saturate, then the log₂
+bin index. Samples land in the same bins two cycles later, and the read-modify-write
+hazard window is untouched because it sits between the last stage and the memory write.
+
+Four runs took the entry-level part from 94.4 MHz to 123.4 MHz, a 31 % improvement, and
+every one of these changes is behaviour-preserving. None of the testbenches were touched to
+accommodate them: the clock core still matches its flat fixed-point reference on
+all 3.1 million per-cycle comparisons, and the RTL still reproduces the Simulink golden
+vectors bit-for-bit across 300 servo steps.
+
+---
+
+## Verification at a glance
+
+Every testbench is self-checking and prints `TEST PASSED`; `make sim` runs all six and
+fails the build if any does not.
+
+| Testbench | What it proves | Scale |
+|---|---|---|
+| `tb_ptp_clock_core` | split `{sec, ns, frac}` arithmetic matches a flat 96-bit fixed-point model, cycle by cycle; rate, ppm and ppb slewing, rollover, phase steps | 3.1 M field comparisons |
+| `tb_ptp_ts_capture` | every timestamp equals the time held when the strobe was sampled; overflow drops the newest, not the oldest; async strobes bounded | 2.1 k timestamps |
+| `tb_ptp_time_snapshot` | no torn reads across four clock ratios at random phase, while a naive double-flop tears 12–22 % of reads in the same run | 12 k snapshots |
+| `tb_ptp_latency_hist` | all 128 bins and five statistics match a behavioural model, including the same-bin forwarding hazard | 10 k random pairs |
+| `tb_ptp_tsu_top` | the whole unit over AXI4-Lite at 100 MHz against a 156.25 MHz network clock | 2 k strobe pairs |
+| `tb_servo_golden` | RTL clock state is bit-identical to the Simulink-derived model at every servo step | 300 steps, 46.9 M cycles |
+
+Three independent checks back each other up: a reference model written differently from the
+RTL, a golden model in a different language and tool, and Vivado's own CDC analysis.
+
+## Running it
+
+```bash
+make sim                 # all six testbenches (Icarus Verilog)
+make sim-ptp_clock_core  # one testbench; WAVES=1 also dumps a VCD
+make matlab              # Simulink servo, golden vectors, convergence plots (MATLAB)
+make golden-diff         # replay the vectors in RTL and diff them
+make synth               # Vivado out-of-context synthesis + place and route
+```
+
+Golden vectors are committed, so `make golden-diff` needs no MATLAB licence. Synthesis
+needs Vivado; everything else runs on the free tools.
+
+## Scope and limitations
+
+Stated plainly, because a project claiming timing accuracy should be clear about what it
+has not demonstrated.
+
+- **Simulation and synthesis only.** Nothing has run on an FPGA. Every number here comes
+  from Icarus Verilog or from Vivado's static timing analysis, not from measurement.
+- **Timestamp resolution is one clock period, 6.4 ns at 156.25 MHz.** Sub-nanosecond
+  interpolation was deliberately left out: real implementations use a device-specific delay
+  line or oversampled phase detection, and in a simulation-only project a "sub-nanosecond"
+  claim could not be substantiated.
+- **The histogram pairs timestamps in order**, the n-th egress with the n-th ingress. That
+  suits an in-order pipeline. Out-of-order traffic would need a tag carried alongside.
+- **No PTP protocol stack.** This is the hardware layer: the clock, the timestamps, the
+  measurement and the register interface. Parsing PTP messages and running the state
+  machine is software's job, and the servo is modelled rather than implemented in RTL.
+- **The servo runs at a 1 ms sync interval**, faster than the 125 ms to 1 s of real
+  deployments, so the RTL replay fits in a reasonable simulation. The loop is scale
+  invariant in the product of natural frequency and sample period.
+
+---
+
 ## Repository layout
 
 ```
 rtl/      SystemVerilog RTL (one module per file)
 tb/       Icarus testbenches, tb_<module>.sv, self-checking (prints TEST PASSED)
-synth/    Vivado out-of-context synthesis script + reports
+synth/    Vivado OOC synthesis script, constraints, and committed reports
 matlab/   Simulink servo model (generated), bit-exact clock model, golden-vector export
 python/   register helpers, golden-vector diff
 docs/     register map, design notes

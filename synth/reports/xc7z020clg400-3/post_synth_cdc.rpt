@@ -1,0 +1,194 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
+| Date         : Tue Sep 15 23:01:12 2026
+| Host         : SRIKARVELA8715 running 64-bit major release  (build 9200)
+| Command      : report_cdc -details -file C:/work/ptp-timestamping-unit/synth/reports/xc7z020clg400-3/post_synth_cdc.rpt
+| Design       : ptp_tsu_top
+| Device       : 7z020-clg400
+| Speed File   : -3  PRODUCTION 1.12 2019-11-22
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+CDC Report
+
+ID      Severity  Count  Description
+------  --------  -----  ----------------------------------------------
+CDC-3   Info          4  1-bit synchronized with ASYNC_REG property
+CDC-15  Warning     157  Clock enable controlled CDC structure detected
+
+Source Clock: net_clk
+Destination Clock: aclk
+CDC Type: No Common Primary Clock
+
+Row  ID      Severity  Description                                     Depth  Exception                Source (From)                  Destination (To)
+---  ------  --------  ----------------------------------------------  -----  -----------------------  -----------------------------  --------------------------
+  1  CDC-3   Info      1-bit synchronized with ASYNC_REG property          2  False Path               u_bridge/ack_tgl_reg/C         u_bridge/ack_sync_reg[0]/D
+  2  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[0]/C   u_bridge/m_rdata_reg[0]/D
+  3  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[1]/C   u_bridge/m_rdata_reg[1]/D
+  4  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[2]/C   u_bridge/m_rdata_reg[2]/D
+  5  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[3]/C   u_bridge/m_rdata_reg[3]/D
+  6  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[4]/C   u_bridge/m_rdata_reg[4]/D
+  7  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[5]/C   u_bridge/m_rdata_reg[5]/D
+  8  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[6]/C   u_bridge/m_rdata_reg[6]/D
+  9  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[7]/C   u_bridge/m_rdata_reg[7]/D
+ 10  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[8]/C   u_bridge/m_rdata_reg[8]/D
+ 11  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[9]/C   u_bridge/m_rdata_reg[9]/D
+ 12  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[10]/C  u_bridge/m_rdata_reg[10]/D
+ 13  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[11]/C  u_bridge/m_rdata_reg[11]/D
+ 14  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[12]/C  u_bridge/m_rdata_reg[12]/D
+ 15  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[13]/C  u_bridge/m_rdata_reg[13]/D
+ 16  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[14]/C  u_bridge/m_rdata_reg[14]/D
+ 17  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[15]/C  u_bridge/m_rdata_reg[15]/D
+ 18  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[16]/C  u_bridge/m_rdata_reg[16]/D
+ 19  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[17]/C  u_bridge/m_rdata_reg[17]/D
+ 20  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[18]/C  u_bridge/m_rdata_reg[18]/D
+ 21  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[19]/C  u_bridge/m_rdata_reg[19]/D
+ 22  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[20]/C  u_bridge/m_rdata_reg[20]/D
+ 23  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[21]/C  u_bridge/m_rdata_reg[21]/D
+ 24  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[22]/C  u_bridge/m_rdata_reg[22]/D
+ 25  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[23]/C  u_bridge/m_rdata_reg[23]/D
+ 26  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[24]/C  u_bridge/m_rdata_reg[24]/D
+ 27  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[25]/C  u_bridge/m_rdata_reg[25]/D
+ 28  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[26]/C  u_bridge/m_rdata_reg[26]/D
+ 29  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[27]/C  u_bridge/m_rdata_reg[27]/D
+ 30  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[28]/C  u_bridge/m_rdata_reg[28]/D
+ 31  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[29]/C  u_bridge/m_rdata_reg[29]/D
+ 32  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[30]/C  u_bridge/m_rdata_reg[30]/D
+ 33  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/rdata_hold_reg[31]/C  u_bridge/m_rdata_reg[31]/D
+ 34  CDC-3   Info      1-bit synchronized with ASYNC_REG property          2  False Path               u_snap/ack_tgl_reg/C           u_snap/ack_sync_reg[0]/D
+ 35  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[0]/C           u_snap/dst_ns_reg[0]/D
+ 36  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[1]/C           u_snap/dst_ns_reg[1]/D
+ 37  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[2]/C           u_snap/dst_ns_reg[2]/D
+ 38  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[3]/C           u_snap/dst_ns_reg[3]/D
+ 39  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[4]/C           u_snap/dst_ns_reg[4]/D
+ 40  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[5]/C           u_snap/dst_ns_reg[5]/D
+ 41  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[6]/C           u_snap/dst_ns_reg[6]/D
+ 42  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[7]/C           u_snap/dst_ns_reg[7]/D
+ 43  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[8]/C           u_snap/dst_ns_reg[8]/D
+ 44  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[9]/C           u_snap/dst_ns_reg[9]/D
+ 45  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[10]/C          u_snap/dst_ns_reg[10]/D
+ 46  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[11]/C          u_snap/dst_ns_reg[11]/D
+ 47  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[12]/C          u_snap/dst_ns_reg[12]/D
+ 48  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[13]/C          u_snap/dst_ns_reg[13]/D
+ 49  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[14]/C          u_snap/dst_ns_reg[14]/D
+ 50  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[15]/C          u_snap/dst_ns_reg[15]/D
+ 51  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[16]/C          u_snap/dst_ns_reg[16]/D
+ 52  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[17]/C          u_snap/dst_ns_reg[17]/D
+ 53  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[18]/C          u_snap/dst_ns_reg[18]/D
+ 54  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[19]/C          u_snap/dst_ns_reg[19]/D
+ 55  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[20]/C          u_snap/dst_ns_reg[20]/D
+ 56  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[21]/C          u_snap/dst_ns_reg[21]/D
+ 57  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[22]/C          u_snap/dst_ns_reg[22]/D
+ 58  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[23]/C          u_snap/dst_ns_reg[23]/D
+ 59  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[24]/C          u_snap/dst_ns_reg[24]/D
+ 60  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[25]/C          u_snap/dst_ns_reg[25]/D
+ 61  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[26]/C          u_snap/dst_ns_reg[26]/D
+ 62  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[27]/C          u_snap/dst_ns_reg[27]/D
+ 63  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[28]/C          u_snap/dst_ns_reg[28]/D
+ 64  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[29]/C          u_snap/dst_ns_reg[29]/D
+ 65  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[30]/C          u_snap/dst_ns_reg[30]/D
+ 66  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[31]/C          u_snap/dst_ns_reg[31]/D
+ 67  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[32]/C          u_snap/dst_sec_reg[0]/D
+ 68  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[33]/C          u_snap/dst_sec_reg[1]/D
+ 69  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[34]/C          u_snap/dst_sec_reg[2]/D
+ 70  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[35]/C          u_snap/dst_sec_reg[3]/D
+ 71  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[36]/C          u_snap/dst_sec_reg[4]/D
+ 72  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[37]/C          u_snap/dst_sec_reg[5]/D
+ 73  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[38]/C          u_snap/dst_sec_reg[6]/D
+ 74  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[39]/C          u_snap/dst_sec_reg[7]/D
+ 75  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[40]/C          u_snap/dst_sec_reg[8]/D
+ 76  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[41]/C          u_snap/dst_sec_reg[9]/D
+ 77  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[42]/C          u_snap/dst_sec_reg[10]/D
+ 78  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[43]/C          u_snap/dst_sec_reg[11]/D
+ 79  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[44]/C          u_snap/dst_sec_reg[12]/D
+ 80  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[45]/C          u_snap/dst_sec_reg[13]/D
+ 81  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[46]/C          u_snap/dst_sec_reg[14]/D
+ 82  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[47]/C          u_snap/dst_sec_reg[15]/D
+ 83  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[48]/C          u_snap/dst_sec_reg[16]/D
+ 84  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[49]/C          u_snap/dst_sec_reg[17]/D
+ 85  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[50]/C          u_snap/dst_sec_reg[18]/D
+ 86  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[51]/C          u_snap/dst_sec_reg[19]/D
+ 87  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[52]/C          u_snap/dst_sec_reg[20]/D
+ 88  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[53]/C          u_snap/dst_sec_reg[21]/D
+ 89  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[54]/C          u_snap/dst_sec_reg[22]/D
+ 90  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[55]/C          u_snap/dst_sec_reg[23]/D
+ 91  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[56]/C          u_snap/dst_sec_reg[24]/D
+ 92  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[57]/C          u_snap/dst_sec_reg[25]/D
+ 93  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[58]/C          u_snap/dst_sec_reg[26]/D
+ 94  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[59]/C          u_snap/dst_sec_reg[27]/D
+ 95  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[60]/C          u_snap/dst_sec_reg[28]/D
+ 96  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[61]/C          u_snap/dst_sec_reg[29]/D
+ 97  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[62]/C          u_snap/dst_sec_reg[30]/D
+ 98  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[63]/C          u_snap/dst_sec_reg[31]/D
+ 99  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[64]/C          u_snap/dst_sec_reg[32]/D
+100  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[65]/C          u_snap/dst_sec_reg[33]/D
+101  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[66]/C          u_snap/dst_sec_reg[34]/D
+102  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[67]/C          u_snap/dst_sec_reg[35]/D
+103  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[68]/C          u_snap/dst_sec_reg[36]/D
+104  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[69]/C          u_snap/dst_sec_reg[37]/D
+105  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[70]/C          u_snap/dst_sec_reg[38]/D
+106  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[71]/C          u_snap/dst_sec_reg[39]/D
+107  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[72]/C          u_snap/dst_sec_reg[40]/D
+108  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[73]/C          u_snap/dst_sec_reg[41]/D
+109  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[74]/C          u_snap/dst_sec_reg[42]/D
+110  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[75]/C          u_snap/dst_sec_reg[43]/D
+111  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[76]/C          u_snap/dst_sec_reg[44]/D
+112  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[77]/C          u_snap/dst_sec_reg[45]/D
+113  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[78]/C          u_snap/dst_sec_reg[46]/D
+114  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_snap/snap_reg[79]/C          u_snap/dst_sec_reg[47]/D
+
+Source Clock: aclk
+Destination Clock: net_clk
+CDC Type: No Common Primary Clock
+
+Row  ID      Severity  Description                                     Depth  Exception                Source (From)                  Destination (To)
+---  ------  --------  ----------------------------------------------  -----  -----------------------  -----------------------------  --------------------------
+  1  CDC-3   Info      1-bit synchronized with ASYNC_REG property          2  False Path               u_bridge/req_tgl_reg/C         u_bridge/req_sync_reg[0]/D
+  2  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/addr_hold_reg[0]/C    u_bridge/s_addr_reg[0]/D
+  3  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/addr_hold_reg[1]/C    u_bridge/s_addr_reg[1]/D
+  4  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/addr_hold_reg[2]/C    u_bridge/s_addr_reg[2]/D
+  5  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/addr_hold_reg[3]/C    u_bridge/s_addr_reg[3]/D
+  6  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/addr_hold_reg[4]/C    u_bridge/s_addr_reg[4]/D
+  7  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/addr_hold_reg[5]/C    u_bridge/s_addr_reg[5]/D
+  8  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/addr_hold_reg[6]/C    u_bridge/s_addr_reg[6]/D
+  9  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/addr_hold_reg[7]/C    u_bridge/s_addr_reg[7]/D
+ 10  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/addr_hold_reg[8]/C    u_bridge/s_addr_reg[8]/D
+ 11  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/addr_hold_reg[9]/C    u_bridge/s_addr_reg[9]/D
+ 12  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/addr_hold_reg[10]/C   u_bridge/s_addr_reg[10]/D
+ 13  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/addr_hold_reg[11]/C   u_bridge/s_addr_reg[11]/D
+ 14  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[0]/C   u_bridge/s_wdata_reg[0]/D
+ 15  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[1]/C   u_bridge/s_wdata_reg[1]/D
+ 16  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[2]/C   u_bridge/s_wdata_reg[2]/D
+ 17  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[3]/C   u_bridge/s_wdata_reg[3]/D
+ 18  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[4]/C   u_bridge/s_wdata_reg[4]/D
+ 19  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[5]/C   u_bridge/s_wdata_reg[5]/D
+ 20  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[6]/C   u_bridge/s_wdata_reg[6]/D
+ 21  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[7]/C   u_bridge/s_wdata_reg[7]/D
+ 22  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[8]/C   u_bridge/s_wdata_reg[8]/D
+ 23  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[9]/C   u_bridge/s_wdata_reg[9]/D
+ 24  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[10]/C  u_bridge/s_wdata_reg[10]/D
+ 25  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[11]/C  u_bridge/s_wdata_reg[11]/D
+ 26  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[12]/C  u_bridge/s_wdata_reg[12]/D
+ 27  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[13]/C  u_bridge/s_wdata_reg[13]/D
+ 28  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[14]/C  u_bridge/s_wdata_reg[14]/D
+ 29  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[15]/C  u_bridge/s_wdata_reg[15]/D
+ 30  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[16]/C  u_bridge/s_wdata_reg[16]/D
+ 31  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[17]/C  u_bridge/s_wdata_reg[17]/D
+ 32  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[18]/C  u_bridge/s_wdata_reg[18]/D
+ 33  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[19]/C  u_bridge/s_wdata_reg[19]/D
+ 34  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[20]/C  u_bridge/s_wdata_reg[20]/D
+ 35  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[21]/C  u_bridge/s_wdata_reg[21]/D
+ 36  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[22]/C  u_bridge/s_wdata_reg[22]/D
+ 37  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[23]/C  u_bridge/s_wdata_reg[23]/D
+ 38  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[24]/C  u_bridge/s_wdata_reg[24]/D
+ 39  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[25]/C  u_bridge/s_wdata_reg[25]/D
+ 40  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[26]/C  u_bridge/s_wdata_reg[26]/D
+ 41  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[27]/C  u_bridge/s_wdata_reg[27]/D
+ 42  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[28]/C  u_bridge/s_wdata_reg[28]/D
+ 43  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[29]/C  u_bridge/s_wdata_reg[29]/D
+ 44  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[30]/C  u_bridge/s_wdata_reg[30]/D
+ 45  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/wdata_hold_reg[31]/C  u_bridge/s_wdata_reg[31]/D
+ 46  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Max Delay Datapath Only  u_bridge/we_hold_reg/C         u_bridge/s_we_reg/D
+ 47  CDC-3   Info      1-bit synchronized with ASYNC_REG property          2  False Path               u_snap/req_tgl_reg/C           u_snap/req_sync_reg[0]/D
+

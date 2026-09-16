@@ -1,0 +1,272 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2024.1 (win64) Build 5076996 Wed May 22 18:37:14 MDT 2024
+| Date         : Tue Sep 15 23:08:12 2026
+| Host         : SRIKARVELA8715 running 64-bit major release  (build 9200)
+| Command      : report_bus_skew -file C:/work/ptp-timestamping-unit/synth/reports/xc7k160tffg676-2/post_route_bus_skew.rpt
+| Design       : ptp_tsu_top
+| Device       : 7k160t-ffg676
+| Speed File   : -2  PRODUCTION 1.12 2017-02-17
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Bus Skew Report
+
+Table of Contents
+-----------------
+1. Bus Skew Report Summary
+2. Bus Skew Report Per Constraint
+
+1. Bus Skew Report Summary
+--------------------------
+
+Id  Position  From                            To                              Corner  Requirement(ns)  Actual(ns)  Slack(ns)
+--  --------  ------------------------------  ------------------------------  ------  ---------------  ----------  ---------
+1   6         [get_cells {u_snap/snap_reg[*]}]
+                                              [get_cells {{u_snap/dst_sec_reg[*]} {u_snap/dst_ns_reg[*]}}]
+                                                                              Slow              6.400       0.636      5.764
+2   10        [get_cells {{u_bridge/addr_hold_reg[*]} {u_bridge/wdata_hold_reg[*]} u_bridge/we_hold_reg}]
+                                              [get_cells {{u_bridge/s_addr_reg[*]} {u_bridge/s_wdata_reg[*]} u_bridge/s_we_reg}]
+                                                                              Slow              6.400       0.787      5.613
+3   12        [get_cells {u_bridge/rdata_hold_reg[*]}]
+                                              [get_cells {u_bridge/m_rdata_reg[*]}]
+                                                                              Slow              6.400       0.833      5.567
+
+
+2. Bus Skew Report Per Constraint
+---------------------------------
+
+Id: 1
+set_bus_skew -from [get_cells {u_snap/snap_reg[*]}] -to [get_cells {{u_snap/dst_sec_reg[*]} {u_snap/dst_ns_reg[*]}}] 6.400
+Requirement: 6.400ns
+Endpoints: 80
+
+From Clock            To Clock              Endpoint Pin                    Reference Pin                   Corner  Actual(ns)  Slack(ns)
+--------------------  --------------------  ------------------------------  ------------------------------  ------  ----------  ---------
+net_clk               aclk                  u_snap/dst_sec_reg[33]/D        u_snap/dst_sec_reg[36]/D        Slow         0.636      5.764
+
+
+Slack (MET) :             5.764ns  (requirement - actual skew)
+  Endpoint Source:        u_snap/snap_reg[65]/C
+                            (rising edge-triggered cell FDRE clocked by net_clk)
+  Endpoint Destination:   u_snap/dst_sec_reg[33]/D
+                            (rising edge-triggered cell FDRE clocked by aclk)
+  Reference Source:       u_snap/snap_reg[68]/C
+                            (rising edge-triggered cell FDRE clocked by net_clk)
+  Reference Destination:  u_snap/dst_sec_reg[36]/D
+                            (rising edge-triggered cell FDRE clocked by aclk)
+  Path Type:              Bus Skew (Max at Slow Process Corner)
+  Requirement:            6.400ns
+  Endpoint Relative Delay:    0.895ns
+  Reference Relative Delay:   0.258ns
+  Relative CRPR:              0.000ns
+  Actual Bus Skew:            0.636ns  (Endpoint Relative Delay - Reference Relative Delay - Relative CRPR)
+
+Endpoint path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock net_clk rise edge)    0.000     0.000 r  
+                                                      0.000     0.000 r  net_clk (IN)
+                         net (fo=1291, unset)         0.537     0.537    u_snap/net_clk
+    SLICE_X15Y89         FDRE                                         r  u_snap/snap_reg[65]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X15Y89         FDRE (Prop_fdre_C_Q)         0.223     0.760 r  u_snap/snap_reg[65]/Q
+                         net (fo=1, routed)           0.638     1.398    u_snap/p_1_in__0[33]
+    SLICE_X15Y85         FDRE                                         r  u_snap/dst_sec_reg[33]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=376, unset)          0.510     0.510    u_snap/aclk
+    SLICE_X15Y85         FDRE                                         r  u_snap/dst_sec_reg[33]/C
+                         clock pessimism              0.000     0.510    
+    SLICE_X15Y85         FDRE (Setup_fdre_C_D)       -0.007     0.503    u_snap/dst_sec_reg[33]
+  -------------------------------------------------------------------
+                         data arrival                           1.398    
+                         clock arrival                          0.503    
+  -------------------------------------------------------------------
+                         relative delay                         0.895    
+
+Reference path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock net_clk rise edge)    0.000     0.000 r  
+                                                      0.000     0.000 r  net_clk (IN)
+                         net (fo=1291, unset)         0.510     0.510    u_snap/net_clk
+    SLICE_X21Y91         FDRE                                         r  u_snap/snap_reg[68]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X21Y91         FDRE (Prop_fdre_C_Q)         0.178     0.688 r  u_snap/snap_reg[68]/Q
+                         net (fo=1, routed)           0.242     0.930    u_snap/p_1_in__0[36]
+    SLICE_X22Y89         FDRE                                         r  u_snap/dst_sec_reg[36]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=376, unset)          0.537     0.537    u_snap/aclk
+    SLICE_X22Y89         FDRE                                         r  u_snap/dst_sec_reg[36]/C
+                         clock pessimism              0.000     0.537    
+    SLICE_X22Y89         FDRE (Hold_fdre_C_D)         0.135     0.672    u_snap/dst_sec_reg[36]
+  -------------------------------------------------------------------
+                         data arrival                           0.930    
+                         clock arrival                          0.672    
+  -------------------------------------------------------------------
+                         relative delay                         0.258    
+
+
+
+Id: 2
+set_bus_skew -from [get_cells {{u_bridge/addr_hold_reg[*]} {u_bridge/wdata_hold_reg[*]} u_bridge/we_hold_reg}] -to [get_cells {{u_bridge/s_addr_reg[*]} {u_bridge/s_wdata_reg[*]} u_bridge/s_we_reg}] 6.400
+Requirement: 6.400ns
+Endpoints: 45
+
+From Clock            To Clock              Endpoint Pin                    Reference Pin                   Corner  Actual(ns)  Slack(ns)
+--------------------  --------------------  ------------------------------  ------------------------------  ------  ----------  ---------
+aclk                  net_clk               u_bridge/s_wdata_reg[24]/D      u_bridge/s_wdata_reg[23]/D      Slow         0.787      5.613
+
+
+Slack (MET) :             5.613ns  (requirement - actual skew)
+  Endpoint Source:        u_bridge/wdata_hold_reg[24]/C
+                            (rising edge-triggered cell FDRE clocked by aclk)
+  Endpoint Destination:   u_bridge/s_wdata_reg[24]/D
+                            (rising edge-triggered cell FDRE clocked by net_clk)
+  Reference Source:       u_bridge/wdata_hold_reg[23]/C
+                            (rising edge-triggered cell FDRE clocked by aclk)
+  Reference Destination:  u_bridge/s_wdata_reg[23]/D
+                            (rising edge-triggered cell FDRE clocked by net_clk)
+  Path Type:              Bus Skew (Max at Slow Process Corner)
+  Requirement:            6.400ns
+  Endpoint Relative Delay:    1.032ns
+  Reference Relative Delay:   0.245ns
+  Relative CRPR:              0.000ns
+  Actual Bus Skew:            0.787ns  (Endpoint Relative Delay - Reference Relative Delay - Relative CRPR)
+
+Endpoint path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=376, unset)          0.537     0.537    u_bridge/aclk
+    SLICE_X23Y91         FDRE                                         r  u_bridge/wdata_hold_reg[24]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X23Y91         FDRE (Prop_fdre_C_Q)         0.223     0.760 r  u_bridge/wdata_hold_reg[24]/Q
+                         net (fo=1, routed)           0.772     1.532    u_bridge/wdata_hold[24]
+    SLICE_X23Y87         FDRE                                         r  u_bridge/s_wdata_reg[24]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock net_clk rise edge)    0.000     0.000 r  
+                                                      0.000     0.000 r  net_clk (IN)
+                         net (fo=1291, unset)         0.510     0.510    u_bridge/net_clk
+    SLICE_X23Y87         FDRE                                         r  u_bridge/s_wdata_reg[24]/C
+                         clock pessimism              0.000     0.510    
+    SLICE_X23Y87         FDRE (Setup_fdre_C_D)       -0.010     0.500    u_bridge/s_wdata_reg[24]
+  -------------------------------------------------------------------
+                         data arrival                           1.532    
+                         clock arrival                          0.500    
+  -------------------------------------------------------------------
+                         relative delay                         1.032    
+
+Reference path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=376, unset)          0.510     0.510    u_bridge/aclk
+    SLICE_X23Y91         FDRE                                         r  u_bridge/wdata_hold_reg[23]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X23Y91         FDRE (Prop_fdre_C_Q)         0.178     0.688 r  u_bridge/wdata_hold_reg[23]/Q
+                         net (fo=1, routed)           0.247     0.935    u_bridge/wdata_hold[23]
+    SLICE_X22Y91         FDRE                                         r  u_bridge/s_wdata_reg[23]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock net_clk rise edge)    0.000     0.000 r  
+                                                      0.000     0.000 r  net_clk (IN)
+                         net (fo=1291, unset)         0.537     0.537    u_bridge/net_clk
+    SLICE_X22Y91         FDRE                                         r  u_bridge/s_wdata_reg[23]/C
+                         clock pessimism              0.000     0.537    
+    SLICE_X22Y91         FDRE (Hold_fdre_C_D)         0.153     0.690    u_bridge/s_wdata_reg[23]
+  -------------------------------------------------------------------
+                         data arrival                           0.935    
+                         clock arrival                          0.690    
+  -------------------------------------------------------------------
+                         relative delay                         0.245    
+
+
+
+Id: 3
+set_bus_skew -from [get_cells {u_bridge/rdata_hold_reg[*]}] -to [get_cells {u_bridge/m_rdata_reg[*]}] 6.400
+Requirement: 6.400ns
+Endpoints: 32
+
+From Clock            To Clock              Endpoint Pin                    Reference Pin                   Corner  Actual(ns)  Slack(ns)
+--------------------  --------------------  ------------------------------  ------------------------------  ------  ----------  ---------
+net_clk               aclk                  u_bridge/m_rdata_reg[14]/D      u_bridge/m_rdata_reg[1]/D       Slow         0.833      5.567
+
+
+Slack (MET) :             5.567ns  (requirement - actual skew)
+  Endpoint Source:        u_bridge/rdata_hold_reg[14]/C
+                            (rising edge-triggered cell FDRE clocked by net_clk)
+  Endpoint Destination:   u_bridge/m_rdata_reg[14]/D
+                            (rising edge-triggered cell FDRE clocked by aclk)
+  Reference Source:       u_bridge/rdata_hold_reg[1]/C
+                            (rising edge-triggered cell FDRE clocked by net_clk)
+  Reference Destination:  u_bridge/m_rdata_reg[1]/D
+                            (rising edge-triggered cell FDRE clocked by aclk)
+  Path Type:              Bus Skew (Max at Slow Process Corner)
+  Requirement:            6.400ns
+  Endpoint Relative Delay:    1.096ns
+  Reference Relative Delay:   0.263ns
+  Relative CRPR:              0.000ns
+  Actual Bus Skew:            0.833ns  (Endpoint Relative Delay - Reference Relative Delay - Relative CRPR)
+
+Endpoint path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock net_clk rise edge)    0.000     0.000 r  
+                                                      0.000     0.000 r  net_clk (IN)
+                         net (fo=1291, unset)         0.537     0.537    u_bridge/net_clk
+    SLICE_X11Y81         FDRE                                         r  u_bridge/rdata_hold_reg[14]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X11Y81         FDRE (Prop_fdre_C_Q)         0.223     0.760 r  u_bridge/rdata_hold_reg[14]/Q
+                         net (fo=1, routed)           0.839     1.599    u_bridge/rdata_hold[14]
+    SLICE_X24Y85         FDRE                                         r  u_bridge/m_rdata_reg[14]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=376, unset)          0.510     0.510    u_bridge/aclk
+    SLICE_X24Y85         FDRE                                         r  u_bridge/m_rdata_reg[14]/C
+                         clock pessimism              0.000     0.510    
+    SLICE_X24Y85         FDRE (Setup_fdre_C_D)       -0.007     0.503    u_bridge/m_rdata_reg[14]
+  -------------------------------------------------------------------
+                         data arrival                           1.599    
+                         clock arrival                          0.503    
+  -------------------------------------------------------------------
+                         relative delay                         1.096    
+
+Reference path:
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock net_clk rise edge)    0.000     0.000 r  
+                                                      0.000     0.000 r  net_clk (IN)
+                         net (fo=1291, unset)         0.510     0.510    u_bridge/net_clk
+    SLICE_X13Y76         FDRE                                         r  u_bridge/rdata_hold_reg[1]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X13Y76         FDRE (Prop_fdre_C_Q)         0.178     0.688 r  u_bridge/rdata_hold_reg[1]/Q
+                         net (fo=1, routed)           0.239     0.927    u_bridge/rdata_hold[1]
+    SLICE_X18Y76         FDRE                                         r  u_bridge/m_rdata_reg[1]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock aclk rise edge)       0.000     0.000 r  
+                                                      0.000     0.000 r  aclk (IN)
+                         net (fo=376, unset)          0.537     0.537    u_bridge/aclk
+    SLICE_X18Y76         FDRE                                         r  u_bridge/m_rdata_reg[1]/C
+                         clock pessimism              0.000     0.537    
+    SLICE_X18Y76         FDRE (Hold_fdre_C_D)         0.127     0.664    u_bridge/m_rdata_reg[1]
+  -------------------------------------------------------------------
+                         data arrival                           0.927    
+                         clock arrival                          0.664    
+  -------------------------------------------------------------------
+                         relative delay                         0.263    
+
+
+
