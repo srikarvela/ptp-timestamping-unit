@@ -35,20 +35,26 @@ make synth                    # Vivado OOC synthesis + implementation (Windows V
 
 `make sim-servo_golden` alone takes about 2 minutes 15 seconds; leave it out of quick loops.
 
-## Current task
+## State
 
-Vivado out-of-context synthesis. Script `synth/ooc_synth.tcl`, clocks in
-`synth/ptp_tsu_clocks.xdc`, CDC exceptions in `synth/ptp_cdc.xdc` (sourced after
-`synth_design`, so register names are post-synthesis `<sig>_reg[<bit>]`). Reports land in
-`synth/reports/<part>/`, with `summary.txt` carrying Fmax, WNS, utilization and CDC counts.
-Default part is `xc7z020clg400-1`, matching the PYNQ-Z2 used in the author's
-fpga-crypto-feed-handler project.
+All six blocks done, synthesised and documented; README carries the real numbers.
 
-Watch the network-clock timing. The histogram's stage 1 does a 49-bit subtract, a 35-bit
-add, a compare, a 32-bit priority encoder and a barrel shift in one 6.4 ns cycle, and is
-the likeliest place to miss timing. Fix by pipelining that stage, then rerun `make sim`.
+Synthesis: `synth/ooc_synth.tcl` (clocks in `ptp_tsu_clocks.xdc`, CDC exceptions in
+`ptp_cdc.xdc`, sourced after `synth_design` so names are post-synthesis
+`<sig>_reg[<bit>]`). Reports committed per part under `synth/reports/<part>/`.
 
-After synthesis passes: update README with real numbers, commit, push.
+  xc7z020clg400-1   -1.701 ns   123.4 MHz   misses 156.25 MHz
+  xc7z020clg400-3   +0.242 ns   162.4 MHz   meets
+  xc7k160tffg676-2  +0.877 ns   181.1 MHz   meets
+
+Timing closure took four runs and two RTL changes, both behaviour-preserving:
+speculative parallel arithmetic in the clock core (with DONT_TOUCH, because Vivado
+re-merges it into a serial chain otherwise), and splitting the histogram's stage 1 into
+three. Do not remove those DONT_TOUCH attributes.
+
+If picking this up again, the open items are: the histogram's BRAM read-modify-write loop
+is the remaining critical path on fast parts (register the RAM output with deeper
+forwarding, or move bins to distributed RAM); and nothing has ever run on real hardware.
 
 ## Environment
 
