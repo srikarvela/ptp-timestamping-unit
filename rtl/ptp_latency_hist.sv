@@ -146,18 +146,51 @@ module ptp_latency_hist #(
     assign out_ready = take;
 
     // ------------------------------------------------------------------
-    // Stage 1: delta and bin (registered)
+    // Stages 1a / 1b / 1c: differences, then delta, then bin.
+    //
+    // Originally one combinational block: the FIFO's LUTRAM read, a 49-bit
+    // seconds subtract, a 35-bit ns subtract, the seconds-to-ns mux, a
+    // 35-bit add, the saturate compare, a 32-bit priority encoder, a barrel
+    // shift and the dense-index subtract, all between two registers.  At
+    // 6.4 ns that was the design's critical path once the clock core was
+    // fixed: 15 levels, -3.007 ns post-route.
+    //
+    // Split into three stages it is comfortable, and nothing observable
+    // changes: samples still enter in order and land in the same bins, two
+    // cycles later.  The read-modify-write hazard window is unaffected --
+    // it lives between the final stage and the RAM write, which are still
+    // adjacent.
     // ------------------------------------------------------------------
+
+    // ---- stage 1a: the two subtracts ---------------------------------
+    logic signed [SEC_W:0]  sec_diff_c;
+    logic signed [34:0]     ns_diff_c;
+
+    always_comb begin
+        sec_diff_c = $signed({1'b0, out_sec}) - $signed({1'b0, in_sec});
+        ns_diff_c  = $signed({3'b000, out_ns}) - $signed({3'b000, in_ns});
+    end
+
+    logic                   s1a_valid;
     logic signed [SEC_W:0]  sec_diff;
-    logic signed [34:0]     ns_diff;         // out_ns - in_ns, in (-1e9, 1e9)
+    logic signed [34:0]     ns_diff;
+
+    always_ff @(posedge clk) begin
+        if (!rst_n) s1a_valid <= 1'b0;
+        else begin
+            s1a_valid <= take;
+            sec_diff  <= sec_diff_c;
+            ns_diff   <= ns_diff_c;
+        end
+    end
+
+    // ---- stage 1b: combine into a delta ------------------------------
     logic signed [34:0]     sec_ns;          // sec_diff * 1e9 for sec_diff 0..5
     logic signed [34:0]     full_c;          // up to 5e9 + 1e9 -> 35-bit signed
     logic [31:0]            delta_c;
     logic                   neg_c, sat_c;
 
     always_comb begin
-        sec_diff = $signed({1'b0, out_sec}) - $signed({1'b0, in_sec});
-        ns_diff  = $signed({3'b000, out_ns}) - $signed({3'b000, in_ns});
         case (sec_diff[2:0])
             3'd0:    sec_ns = 35'sd0;
             3'd1:    sec_ns = 35'sd1_000_000_000;
@@ -178,11 +211,24 @@ module ptp_latency_hist #(
         end
     end
 
+    logic             s1b_valid, s1b_neg;
+    logic [31:0]      s1b_delta;
+
+    always_ff @(posedge clk) begin
+        if (!rst_n) s1b_valid <= 1'b0;
+        else begin
+            s1b_valid <= s1a_valid;
+            s1b_neg   <= neg_c;
+            s1b_delta <= delta_c;
+        end
+    end
+
+    // ---- stage 1c: log2 bin index ------------------------------------
     // priority encoder: msb position
     logic [4:0] msb_c;
     always_comb begin
         msb_c = '0;
-        for (int i = 0; i < 32; i++) if (delta_c[i]) msb_c = 5'(i);
+        for (int i = 0; i < 32; i++) if (s1b_delta[i]) msb_c = 5'(i);
     end
 
     // sub-bin bits: the SUB_BITS bits just below the msb; dense index
@@ -190,10 +236,10 @@ module ptp_latency_hist #(
     logic [31:0]         shifted_c;
     logic [BIN_W-1:0]    bin_c;
     always_comb begin
-        shifted_c = delta_c << (5'd31 - msb_c);      // msb now at bit 31
+        shifted_c = s1b_delta << (5'd31 - msb_c);    // msb now at bit 31
         sub_c     = shifted_c[30 -: SUB_BITS];
-        if (delta_c < LIN_N) bin_c = BIN_W'(delta_c);
-        else                 bin_c = {msb_c, sub_c} - BIN_W'(OFFSET);
+        if (s1b_delta < LIN_N) bin_c = BIN_W'(s1b_delta);
+        else                   bin_c = {msb_c, sub_c} - BIN_W'(OFFSET);
     end
 
     logic             s1_neg;
@@ -204,9 +250,9 @@ module ptp_latency_hist #(
         if (!rst_n) begin
             s1_valid <= 1'b0;
         end else begin
-            s1_valid <= take;
-            s1_neg   <= neg_c;
-            s1_delta <= delta_c;
+            s1_valid <= s1b_valid;
+            s1_neg   <= s1b_neg;
+            s1_delta <= s1b_delta;
             s1_bin   <= bin_c;
         end
     end
