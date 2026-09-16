@@ -142,10 +142,19 @@ module ptp_clock_core #(
     logic                    ns_ge;      // rolled over  -> carry into seconds
     logic                    ns_lt;      // went negative -> borrow from seconds
 
-    // carry-select on the fraction carry: {0,1} variants of each sum
-    logic signed [NSS_W-1:0] ns_sum_k   [0:1];
-    logic signed [NSS_W-1:0] ns_minus_k [0:1];
-    logic signed [NSS_W-1:0] ns_plus_k  [0:1];
+    // Carry-select on the fraction carry: {0,1} variants of each sum.
+    //
+    // DONT_TOUCH is load-bearing, not decoration.  Written without it,
+    // Vivado spots that ns_minus is ns_sum - 1e9 and that the three
+    // seconds values differ by one, treats them as common subexpressions,
+    // and rebuilds exactly the serial chain this code exists to avoid:
+    // the second OOC run still showed ns_sum_k feeding a second carry
+    // chain and then a 48-bit seconds chain, 27 levels, -3.264 ns.  The
+    // attributes forbid that merge and buy the parallelism back for the
+    // cost of a few hundred LUTs.
+    (* DONT_TOUCH = "TRUE" *) logic signed [NSS_W-1:0] ns_sum_k   [0:1];
+    (* DONT_TOUCH = "TRUE" *) logic signed [NSS_W-1:0] ns_minus_k [0:1];
+    (* DONT_TOUCH = "TRUE" *) logic signed [NSS_W-1:0] ns_plus_k  [0:1];
 
     assign incr_int = incr_eff[INCR_W-1:FRAC_W];
     assign adj_term = adj_valid ? NSS_W'(adj_ns) : NSS_W'(0);
@@ -178,9 +187,9 @@ module ptp_clock_core #(
     // ------------------------------------------------------------------
     // Seconds: all three outcomes precomputed, selected by the ns result.
     // ------------------------------------------------------------------
-    logic [SEC_W-1:0] sec_adj;      // time_sec + adj_sec
-    logic [SEC_W-1:0] sec_adj_inc;  //           ... + 1   (ns rolled over)
-    logic [SEC_W-1:0] sec_adj_dec;  //           ... - 1   (ns went negative)
+    (* DONT_TOUCH = "TRUE" *) logic [SEC_W-1:0] sec_adj;      // time_sec + adj_sec
+    (* DONT_TOUCH = "TRUE" *) logic [SEC_W-1:0] sec_adj_inc;  //        ... + 1
+    (* DONT_TOUCH = "TRUE" *) logic [SEC_W-1:0] sec_adj_dec;  //        ... - 1
     logic [SEC_W-1:0] sec_next;
 
     assign sec_adj     = time_sec + (adj_valid ? SEC_W'(adj_sec) : SEC_W'(0));
